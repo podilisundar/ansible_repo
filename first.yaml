@@ -1,6 +1,7 @@
 ---
-- hosts: ip
-  gather_facts: no
+- hosts : webserver
+  become : yes
   tasks:
-    - name: pinging the machine
-      ping:  
+  - name: update the package
+    apt:
+      update_cache : yes
