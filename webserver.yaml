@@ -3,5 +3,5 @@
   become : yes
   tasks:
   - name: update the package
-      apt:
-        update_cache : yes
+    apt:
+      update_cache : yes
