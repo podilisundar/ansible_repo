@@ -1,6 +1,5 @@
 ---
--  hosts: ip
-   gather_facts: no
-   tasks:
-   -  name: pinging the machine
+- hosts: ip
+  tasks:
+    - name: pinging the machine
       ping:  
