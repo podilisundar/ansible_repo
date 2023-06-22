@@ -1,0 +1,86 @@
+---
+- name: Manage LVM volumes
+  hosts: ip  
+  vars:
+    lvm_volume_groups:
+      - name: vg-2
+        physical_volumes:
+          - /dev/sdc
+
+    lvm_logical_volumes:
+      - name: lv2
+        vg: vg-2
+        size: 1G
+
+  tasks:
+    - name: Install LVM package
+      yum:
+        name: lvm2 
+        state: present
+
+    - name: Create physical volumes
+      become: true
+      parted:
+        device: "{{ item }}"
+        number: 1
+        state: present
+        label: gpt
+      with_items:
+        - "{{ lvm_volume_groups | map(attribute='physical_volumes') | flatten }}"
+
+    - name: Create volume groups
+      become: true
+      lvg:
+        vg: "{{ item.name }}"
+        pv: "{{ item.physical_volumes }}"
+      with_items:
+        - "{{ lvm_volume_groups }}"
+
+    - name: Create logical volumes
+      become: true
+      lvol:
+        lv: "{{ item.name }}"
+        vg: "{{ item.vg }}"
+        size: "{{ item.size }}"
+      with_items:
+        - "{{ lvm_logical_volumes }}"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Hi Vijay ,
+
+I’d like to request the ability to work from home for 20 days.I will consult the doctor and plan for sergery regarding to my new born baby health.

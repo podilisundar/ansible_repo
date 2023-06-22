@@ -1,0 +1,53 @@
+---
+- name: Manage LVM volumes
+  hosts: lvm_hosts  # Replace with your target hosts or inventory group
+
+  vars:
+    lvm_volume_groups:
+      - name: vg-1
+        physical_volumes:
+          - /dev/sdb
+      - name: vg-2
+        physical_volumes:
+          - /dev/sdc
+
+    lvm_logical_volumes:
+      - name: lv1
+        vg: vg1
+        size: 1G
+      - name: lv2
+        vg: vg2
+        size: 512M
+
+  tasks:
+    - name: Install LVM package
+      apt:
+        name: lvm2  # Replace with the package manager for your distribution
+        state: present
+
+    - name: Create physical volumes
+      become: true
+      parted:
+        device: "{{ item }}"
+        number: 1
+        state: present
+        label: gpt
+      with_items:
+        - "{{ lvm_volume_groups | map(attribute='physical_volumes') | flatten }}"
+
+    - name: Create volume groups
+      become: true
+      lvg:
+        vg: "{{ item.name }}"
+        pv: "{{ item.physical_volumes }}"
+      with_items:
+        - "{{ lvm_volume_groups }}"
+
+    - name: Create logical volumes
+      become: true
+      lvol:
+        lv: "{{ item.name }}"
+        vg: "{{ item.vg }}"
+        size: "{{ item.size }}"
+      with_items:
+        - "{{ lvm_logical_volumes }}"

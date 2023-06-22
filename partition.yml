@@ -1,0 +1,44 @@
+--
+- name: Logical volume management
+  hosts: localhost
+  become: true
+  tasks:
+    - name: create physical volume
+      parted:
+        device: /dev/sde
+        number: 1
+        flags: [ lvm ]
+        state: present
+        part_end: 2GB
+
+    - name: task for creating volume group
+      lvg:
+          vg: vg-1
+          pvs: /dev/sde
+          pesize: 16
+
+    - name: task for creating logical volume
+      lvol:
+          vg: vg-1
+          lv: lv-1
+          size: 1g
+          force: yes
+
+    - name: Create directory data1 if does not exist
+      file:
+        path: /data1
+        state: directory
+        mode: '0755'
+    - name: format the xfs filesystem
+      filesystem:
+        fstype: xfs
+        dev: /dev/vg-1/lv-1
+
+    - name: mount the lv on /data1
+      mount:
+        path: /data1
+        src: /dev/vg-1/lv-1
+        fstype: xfs
+        state: mounted
+
+
